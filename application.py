@@ -67,15 +67,16 @@ class Item(Resource):
 
     @classmethod
     def update(cls, item):
-        result = dynamo.tables['ItemTableWithImages'].update_item(Key={
+        delete_image(Item.find_by_name(item['name'])['image'])  # delete the existing image first
+        dynamo.tables['ItemTableWithImages'].update_item(Key={
             'name': item['name']
             },
-            UpdateExpression='SET price = :p',
+            UpdateExpression='SET price = :p, image = :i',
             ExpressionAttributeValues={
-                ':p': convert_to_decimal(item['price'])
+                ':p': convert_to_decimal(item['price']),
+                ':i': pull_and_upload_image(item['name'])
             }
         )
-        print(result)
 
     def get(self, name):
         item = self.find_by_name(name)
@@ -129,7 +130,7 @@ class Item(Resource):
             try:
                 Item.update(updated_item)
             except:
-                return {'message': 'an error occurred inserting the item.'}, 500
+                return {'message': 'an error occurred updating the item.'}, 500
         return updated_item
 
 
