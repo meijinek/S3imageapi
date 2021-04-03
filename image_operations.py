@@ -96,7 +96,7 @@ def delete_image(object_name, bucket_name='oortcloud-test1'):
     sess = boto3.session.Session()
 
     s3_con_cli = sess.client(service_name='s3', region_name='eu-west-2')
-    
+
     s3_con_cli.delete_object(
         Bucket=bucket_name,
         Key=object_name
